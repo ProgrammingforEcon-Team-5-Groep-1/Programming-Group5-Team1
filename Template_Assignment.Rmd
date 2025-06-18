@@ -336,8 +336,79 @@ Analyze the relationship between two variables.
 
 ```{r analysis}
 
-```
+# Clean Regio.s before the join
+event_analysis_data <- data_combined %>%
+  filter(Year == "2021") %>%
+  mutate(provincie_kort = gsub(" \\(PV\\)", "", Regio.s),
+         provincie_kort = ifelse(provincie_kort == "Fryslân", "Friesland", provincie_kort)) %>%
+  left_join(
+    migratie_bevolking %>%
+      filter(Year == "2021") %>%
+      mutate(
+        provincie_kort = gsub(" \\(PV\\)", "", Regio.s),
+        provincie_kort = ifelse(provincie_kort == "Fryslân", "Friesland", provincie_kort),
+        Netto_Migratie_Perc = Netto_Migratie / Bevolking * 100
+      ) %>%
+      select(provincie_kort, Netto_Migratie_Perc),
+    by = "provincie_kort"
+  )
 
+# Clean for plotting
+event_analysis_data_clean <- event_analysis_data %>%
+  filter(!is.na(Netto_Migratie_Perc), !is.na(Tekort))
+
+# Plot with regression line and province labels
+ggplot(event_analysis_data_clean, aes(x = Netto_Migratie_Perc, y = Tekort, label = Regio.s)) +
+  geom_point(color = "darkblue", size = 3) +
+  geom_text(nudge_y = 1000, size = 3) +
+  geom_smooth(method = "lm", se = FALSE, color = "red", linewidth = 1.2) +
+  labs(
+    title = "Relation between migration and housing shortage (2021)",
+    x = "Net migration (% of population)",
+    y = "Housing shortage"
+  ) +
+  theme_minimal(base_size = 11)
+
+
+
+```
+```{r analysis} 
+# Maak dataset en sluit Groningen uit
+event_analysis_data <- data_combined %>%
+  filter(Year == "2021") %>%
+  mutate(
+    provincie_kort = gsub(" \\(PV\\)", "", Regio.s),
+    provincie_kort = ifelse(provincie_kort == "Fryslân", "Friesland", provincie_kort)
+  ) %>%
+  filter(provincie_kort != "Groningen") %>%  # ⛔ Groningen weghalen
+  left_join(
+    migratie_bevolking %>%
+      filter(Year == "2021") %>%
+      mutate(
+        provincie_kort = gsub(" \\(PV\\)", "", Regio.s),
+        provincie_kort = ifelse(provincie_kort == "Fryslân", "Friesland", provincie_kort),
+        Netto_Migratie_Perc = Netto_Migratie / Bevolking * 100
+      ) %>%
+      select(provincie_kort, Netto_Migratie_Perc),
+    by = "provincie_kort"
+  )
+
+# Filter op geldige rijen
+event_analysis_data_clean <- event_analysis_data %>%
+  filter(!is.na(Netto_Migratie_Perc), !is.na(Tekort))
+
+# Maak scatterplot met labels
+ggplot(event_analysis_data_clean, aes(x = Netto_Migratie_Perc, y = Tekort, label = Regio.s)) +
+  geom_point(color = "darkblue", size = 3) +
+  geom_text(nudge_y = 1000, size = 3) +
+  geom_smooth(method = "lm", se = FALSE, color = "red", linewidth = 1.2) +
+  labs(
+    title = "Relation between migration and housing shortage without Groningen (2021)",
+    x = "Net migration (% of population)",
+    y = "Housing shortage"
+  ) +
+  theme_minimal(base_size = 11)
+``` 
 Here you provide a description of why the plot above is relevant to your specific social problem.
 
 # Part 4 - Discussion

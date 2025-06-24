@@ -426,7 +426,7 @@ This scatter plot displays the relationship between net migration (as a percenta
 
 Analysis of Housing Shortage and Migration in the Netherlands (2019-2021)
 
-The analysis of the graphs confirms a persistent and locally worsening housing shortage in the Netherlands between 2019 and 2021. While there's a slight national decrease, the data clearly shows that urban and western provinces, such as Noord-Holland, Zuid-Holland, and Utrecht, are the most severely affected.
+The analysis of the graphs confirms a persistent and locally housing shortage in the Netherlands between 2019 and 2021. While there's a slight national decrease, the data clearly shows that urban and western provinces, such as Noord-Holland, Zuid-Holland, and Utrecht, are the most severely affected.
 
 Migration patterns significantly exacerbate this issue. There is a clear correlation: regions experiencing higher net migration also report larger housing shortages. This indicates a demand-driven pressure on the housing market, caused by demographic growth and the attractiveness of these regions. The outlier of Groningen (possibly due to an asylum seekers' center) shows that specific migration factors can have a large local impact, but the trend remains clear even without this province.
 

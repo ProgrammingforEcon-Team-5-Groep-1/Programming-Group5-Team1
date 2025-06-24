@@ -1,7 +1,6 @@
 ---
 title: "Household shortage"
-author: "Joris heeremans(2787294), Tom Nethe(2784796), Mohamed Hannun(2824390), Jelle Menninga(2864828),
-Daan Notenboom (2853496), Suleyman Yigitsoy(2861891), Soufyan Attokoki() "
+author: "J. Heeremans (2787294), T. Nethe (2784796), M. Hannun (2824390), J. Menninga (2864828), D. Notenboom (2853496), S. Yigitsoy (2861891), S. Attokoki()"
 date: "`r Sys.Date()`"
 output: pdf_document
 ---
@@ -36,6 +35,8 @@ library(tinytex)
 Joris Heeremans, Tom Nethe, Mohamed Hannun, Jelle Menninga, Daan Notenboom, Suleyman Yigitsoy, Soufyan Attokoki
 
 Tutorial group number: 5
+
+Tutorial team number: 1
 
 Tutorial lecturer's name: Jack Fitzgerald
 
@@ -83,7 +84,7 @@ Both data sets include information about the stock houses and the number of hous
 
 ## 3.1 Data cleaning
 
-We already filtered the data through the CBS filter.  
+We already filtered the data through the CBS filter to make the filtering process easier.  
 ```{r data_cleaning}
 
 
@@ -251,7 +252,7 @@ data_2021 <- data_combined %>%
          provincie_kort = ifelse(provincie_kort == "Fryslân", "Friesland", provincie_kort),
          )
 
-# Join: voeg de tekorten toe aan de kaart
+# Voeg de tekorten toe aan de kaart
 kaart_met_tekort <- nl_prov_alleen_prov %>%
   left_join(data_2021, by = c("name" = "provincie_kort"))
 
@@ -440,8 +441,13 @@ https://github.com/ProgrammingforEcon-Team-5-Groep-1/Programming-Group5-Team1
 ## 5.2 Reference list
 
 CBS Statline. (May 23, 2025). Voorraad woningen (en niet woningen), https://opendata.cbs.nl/statline/#/CBS/nl/dataset/81955NED/table?fromstatweb (Last used on June 2, 2025)
+
 CBS Statline. (June 3, 2025). Huishoudens, https://opendata.cbs.nl/statline/#/CBS/nl/dataset/71486ned/table?fromstatweb (Last used on June 2, 2025)
+
 CBS Statline. (May 28, 2025). Bevolkingsontwikkeling, https://opendata.cbs.nl/statline/#/CBS/nl/dataset/37230ned/table?ts=1750160957830 (Last used on June 17,2025)
+
 CBS Statline. (May 28, 2025). Bevolkingsontwikkeling, https://opendata.cbs.nl/statline/#/CBS/nl/dataset/37230ned/table?ts=1750159602778 (Last used on June 17,2025)
+
 Centraal Bureau voor de Statistiek. (2025). Wonen. Centraal Bureau Voor de Statistiek. https://www.cbs.nl/nl-nl/visualisaties/monitor-brede-welvaart-en-de-sustainable-development-goals/hier-en-nu/wonen#:~:text=Door%20ABF%20Research%20is%20voor,een%20kleine%20aanvullende%20aardgaslevering%20plaatsvindt.
+
 Mike Langen, ABN AMRO Bank. (16 January, 2025). Housing market - building according to need. https://www.abnamro.com/research/en/our-research/housing-market-building-according-to-need

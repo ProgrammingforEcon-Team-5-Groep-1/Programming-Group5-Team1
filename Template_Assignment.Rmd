@@ -1,8 +1,17 @@
 ---
-title: "Household shortage"
-author: "J. Heeremans (2787294), T. Nethe (2784796), M. Hannun (2824390), J. Menninga (2864828), D. Notenboom (2853496), S. Yigitsoy (2861891), S. Attokoki()"
+title: "Household Shortage"
+author: |
+  Joris Heeremans (2787294), Tom Nethe (2784796), Mohamed Hannun (2824390),  
+  Jelle Menninga (2864828), Daan Notenboom (2853496), Suleyman Yigitsoy (2861891),  
+  Soufyan Attokoki
 date: "`r Sys.Date()`"
-output: pdf_document
+output: 
+  pdf_document:
+    latex_engine: xelatex
+    toc: true
+    number_sections: true
+fontsize: 11pt
+geometry: margin=1in
 ---
 
 # Set-up your environment
@@ -10,6 +19,7 @@ output: pdf_document
 ```{r package_install, eval=FALSE, include=FALSE}
 install.packages("tidyverse")
 devtools::install_github("r-lib/conflicted")
+tinytex::install_tinytex()
 install.packages("cbsodataR")
 install.packages("dplyr")
 install.packages("sf")
@@ -58,6 +68,7 @@ to find suitable and affordable housing. The government needs to come up with ne
 
 
 ```{r loading_data}
+#load Housing Stock data
 Voorraad_woningen <- read.csv("Vooraad_woningen_Google - Voorraad_woningen.csv")
 KW1_voorraad <- Voorraad_woningen[grepl("1e kwartaal", Voorraad_woningen$Perioden), ]
 
@@ -84,7 +95,7 @@ Both data sets include information about the stock houses and the number of hous
 
 ## 3.1 Data cleaning
 
-We already filtered the data through the CBS filter to make the filtering process easier.  
+We already filtered the data through the filter on the site to make the filtering process easier. We did this because there were a lot of unnecessary data we do not need.  
 ```{r data_cleaning}
 
 
@@ -96,7 +107,7 @@ Huishoudens$Year <- substr(Huishoudens$Periode, 1, 4)
 # Set which years we want to use
 years_to_keep <- c("2019", "2020", "2021")
 
-#Set which provinces 
+# Set which provinces 
 provincies <- c("Groningen (PV)", "Fryslân (PV)", "Drenthe (PV)", "Overijssel (PV)", "Flevoland (PV)",
                 "Gelderland (PV)", "Utrecht (PV)", "Noord-Holland (PV)", "Zuid-Holland (PV)",
                 "Zeeland (PV)", "Noord-Brabant (PV)", "Limburg (PV)")
@@ -112,10 +123,11 @@ households_selected <- subset(Huishoudens,
                                Regio.s %in% provincies &
                                Year %in% years_to_keep)
 
-# --- 1. Reshape migration data from wide to long ---
+# Reshape migration data from wide to long
 migratie_long <- Migratie %>%
   filter(Onderwerp %in% c("Immigratie", "Emigratie")) %>%
-  select(-X) %>%  # Verwijder de kolom die problemen veroorzaakt
+  select(-X) %>%  
+# remove the column causing an error
   pivot_longer(
     cols = starts_with("X"),
     names_to = "Year",
@@ -131,10 +143,11 @@ migratie_long <- Migratie %>%
     Immigratie = as.numeric(Immigratie),
     Emigratie = as.numeric(Emigratie)
   )
-# --- 2. Reshape population data from wide to long ---
+# Reshape population data from wide to long
 bevolking_long <- Bevolking %>%
   filter(Onderwerp == "Bevolking") %>%
-  select(-X) %>%  # Verwijder de kolom die de fout veroorzaakt
+  select(-X) %>%  
+# Remove the column that causes an error
   pivot_longer(
     cols = starts_with("X"),
     names_to = "Year",
@@ -144,7 +157,7 @@ bevolking_long <- Bevolking %>%
   select(Regio.s, Year, Bevolking) %>%
   mutate(Bevolking = as.numeric(Bevolking))
 
-# --- 3. Merge and calculate net migration as % of population ---
+# Merge and calculate net migration as % of population
 migratie_bevolking <- migratie_long %>%
   left_join(bevolking_long, by = c("Regio.s", "Year")) %>%
   mutate(
@@ -161,10 +174,12 @@ head(migratie_bevolking)
 
 # Merge datasets
 data_combined <- housing_stock_selected %>%
-  select(Regio.s, Year, Voorraad = aantal) %>%  # Replace value_column if needed
+  select(Regio.s, Year, Voorraad = aantal) %>%  
+# Replace value_column if needed
   left_join(
     households_selected %>%
-      select(Regio.s, Year, Huishoudens = aantal), # Replace value_column if needed
+      select(Regio.s, Year, Huishoudens = aantal), 
+# Replace value_column if needed
     by = c("Regio.s", "Year")
   )
 
@@ -175,16 +190,16 @@ data_combined <- data_combined %>%
 
 ```
 
-```{r gen_Var 2}
+```{r gen_Var 2, message=FALSE, warning=FALSE}
 # SUM the shortage across all provinces for each year
 nederland_shortage <- data_combined %>%
   group_by(Year) %>%
   summarize(Total_Tekort = sum(Tekort, na.rm = TRUE))
 
-# Zorg dat Year een factor is
+# Make year a factor
 nederland_shortage$Year <- as.factor(nederland_shortage$Year)
 
-# Maak de lijnplot met vaste y-as (0 tot 100.000)
+# Create the line plot with fixed y-axis (0 to 100,000)
 ggplot(nederland_shortage, aes(x = Year, y = Total_Tekort, group = 1)) +
   geom_line(color = "black", size = 1.2) +
   geom_point(size = 3, color = "red") +
@@ -204,12 +219,12 @@ ggplot(nederland_shortage, aes(x = Year, y = Total_Tekort, group = 1)) +
 The line plot illustrates the trend of housing shortage in the Netherlands between 2019 and 2021. The red dots and the line represent the estimated magnitude of the shortage in each year. This visual is important because it provides a clear overview of the national trend in housing scarcity over this period. A clear decrease in the housing shortage can be observed between 2019 and 2021, which is a positive development in addressing housing market issues.
 
 ## 3.3 Visualize temporal variation
-``` {r gen_var 3}
+``` {r gen_var_3}
 
-# Zorg dat je factor-niveau voor jaar logisch wordt geordend (voor de x-as)
+# Make sure your factor level for year is logically arranged (for the x-axis)
 data_combined$Year <- as.factor(data_combined$Year)
 
-# zwarte rand, smallere staven optioneel
+# Black border, narrower bars optional
 ggplot(data_combined, aes(x = factor(Year), y = Tekort, fill = Regio.s)) +
   geom_col(position = "dodge", color = "black", width = 0.8) +
   scale_y_continuous(
@@ -234,10 +249,10 @@ The bar chart visualizing the housing shortage per year per province in the Neth
 ## 3.4 Visualize spatial variation
 
 ```{r visualise_map}
-# Haal shapefile met Nederlandse provincies binnen
+# Load shapefile with Dutch provinces
 nl_prov <- ne_states(country = "Netherlands", returnclass = "sf")
 
-# Selecteer alleen de 12 echte provincies van Nederland
+# Select only the 12 real provinces of the Netherlands
 provincies_nederland <- c(
   "Drenthe", "Flevoland", "Friesland", "Gelderland", "Groningen",
   "Limburg", "Noord-Brabant", "Noord-Holland", "Overijssel",
@@ -245,18 +260,18 @@ provincies_nederland <- c(
 )
 nl_prov_alleen_prov <- nl_prov %>% filter(name %in% provincies_nederland)
 
-# Maak een data-frame voor 2021 met provincie-kolom zonder (PV)
+# Create a data frame for 2021 with province column without (PV)
 data_2021 <- data_combined %>%
   filter(Year == "2021") %>%
   mutate(provincie_kort = gsub(" \\(PV\\)", "", Regio.s),
          provincie_kort = ifelse(provincie_kort == "Fryslân", "Friesland", provincie_kort),
          )
 
-# Voeg de tekorten toe aan de kaart
+# Join the shortages to the map
 kaart_met_tekort <- nl_prov_alleen_prov %>%
   left_join(data_2021, by = c("name" = "provincie_kort"))
 
-# Plot de kaart met kleurverloop wit (laag) tot rood (hoog)
+# Plot the map with color gradient white (low) to red (high)
 ggplot(kaart_met_tekort) +
   geom_sf(aes(fill = Tekort), color = "black", size = 0.5) +
   scale_fill_gradient(
@@ -380,14 +395,15 @@ This scatter plot illustrates the relationship between net migration (as a perce
 
 
 ```{r analysis 2, message=FALSE, warning=FALSE} 
-# Maak dataset en sluit Groningen uit
+# Create dataset and exclude Groningen
 event_analysis_data <- data_combined %>%
   filter(Year == "2021") %>%
   mutate(
     provincie_kort = gsub(" \\(PV\\)", "", Regio.s),
     provincie_kort = ifelse(provincie_kort == "Fryslân", "Friesland", provincie_kort)
   ) %>%
-  filter(provincie_kort != "Groningen") %>%  #Groningen weghalen
+  filter(provincie_kort != "Groningen") %>%  
+# Removing Groningen 
   left_join(
     migratie_bevolking %>%
       filter(Year == "2021") %>%
@@ -400,11 +416,11 @@ event_analysis_data <- data_combined %>%
     by = "provincie_kort"
   )
 
-# Filter op geldige rijen
+# Filter on valid rows
 event_analysis_data_clean <- event_analysis_data %>%
   filter(!is.na(Netto_Migratie_Perc), !is.na(Tekort))
 
-# Maak scatterplot met labels
+# Create scatterplot with labels
 ggplot(event_analysis_data_clean, aes(x = Netto_Migratie_Perc, y = Tekort, label = Regio.s)) +
   geom_point(color = "darkblue", size = 3) +
   geom_text(nudge_y = 1000, size = 3) +
@@ -440,14 +456,14 @@ https://github.com/ProgrammingforEcon-Team-5-Groep-1/Programming-Group5-Team1
 
 ## 5.2 Reference list
 
-CBS Statline. (May 23, 2025). Voorraad woningen (en niet woningen), https://opendata.cbs.nl/statline/#/CBS/nl/dataset/81955NED/table?fromstatweb (Last used on June 2, 2025)
+Centraal Bureau voor de Statistiek. (2025, May 23). Stock of dwellings (and non-dwellings). CBS StatLine. https://opendata.cbs.nl/statline/#/CBS/nl/dataset/81955NED/table?fromstatweb
 
-CBS Statline. (June 3, 2025). Huishoudens, https://opendata.cbs.nl/statline/#/CBS/nl/dataset/71486ned/table?fromstatweb (Last used on June 2, 2025)
+Centraal Bureau voor de Statistiek. (2025, June 3). Households. CBS StatLine. https://opendata.cbs.nl/statline/#/CBS/nl/dataset/71486ned/table?fromstatweb
 
-CBS Statline. (May 28, 2025). Bevolkingsontwikkeling, https://opendata.cbs.nl/statline/#/CBS/nl/dataset/37230ned/table?ts=1750160957830 (Last used on June 17,2025)
+Centraal Bureau voor de Statistiek. (2025, May 28). Population development. CBS StatLine. https://opendata.cbs.nl/statline/#/CBS/nl/dataset/37230ned/table?ts=1750160957830
 
-CBS Statline. (May 28, 2025). Bevolkingsontwikkeling, https://opendata.cbs.nl/statline/#/CBS/nl/dataset/37230ned/table?ts=1750159602778 (Last used on June 17,2025)
+Centraal Bureau voor de Statistiek. (2025, May 28). Population development. CBS StatLine. https://opendata.cbs.nl/statline/#/CBS/nl/dataset/37230ned/table?ts=1750159602778
 
-Centraal Bureau voor de Statistiek. (2025). Wonen. Centraal Bureau Voor de Statistiek. https://www.cbs.nl/nl-nl/visualisaties/monitor-brede-welvaart-en-de-sustainable-development-goals/hier-en-nu/wonen#:~:text=Door%20ABF%20Research%20is%20voor,een%20kleine%20aanvullende%20aardgaslevering%20plaatsvindt.
+Centraal Bureau voor de Statistiek. (2025). Housing. CBS. https://www.cbs.nl/en-gb/visualisations/monitor-broad-prosperity-and-the-sustainable-development-goals/here-and-now/housing#:~:text=Door%20ABF%20Research%20is%20voor,een%20kleine%20aanvullende%20aardgaslevering%20plaatsvindt
 
-Mike Langen, ABN AMRO Bank. (16 January, 2025). Housing market - building according to need. https://www.abnamro.com/research/en/our-research/housing-market-building-according-to-need
+Langen, M. (2025, January 16). Housing market – building according to need. ABN AMRO Bank. https://www.abnamro.com/research/en/our-research/housing-market-building-according-to-need

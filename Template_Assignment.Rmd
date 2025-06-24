@@ -3,7 +3,7 @@ title: "Household Shortage"
 author: |
   Joris Heeremans (2787294), Tom Nethe (2784796), Mohamed Hannun (2824390),  
   Jelle Menninga (2864828), Daan Notenboom (2853496), Suleyman Yigitsoy (2861891),  
-  Soufyan Attokoki
+  Soufyan Attokoki (2829868)
 date: "`r Sys.Date()`"
 output: 
   pdf_document:
@@ -54,13 +54,10 @@ Tutorial lecturer's name: Jack Fitzgerald
 
 ## 1.1 Describe the Social Problem
 
-The Netherlands is dealing with a severe housing shortage, estimated at around 400,000 homes. (CBS, 2025) 
-This imbalance between supply and demand, was created by population growth (including immigration), an increase in single-person households, 
-and a lack of new construction (Langen, January 2025). This imbalance has led to skyrocketing prices and fierce competition for available houses. 
-The house prices have risen significantly, making it difficult for many, especially solo buyers and those with low to middle incomes, 
-to find suitable and affordable housing. The government needs to come up with new ideas, otherwise this problem will only grow bigger.
-
-
+The Netherlands is facing a severe housing shortage, estimated to be around 400,000 homes.(CBS, 2025) 
+This imbalance between supply and demand was created by population growth (including immigration), an increase in single-person households, 
+and a lack of new construction (Langen, January 2025). This imbalance has led to skyrocketing prices and fierce competition for available houses. The house prices have risen significantly, making it difficult for many, especially solo buyers and those with low to middle incomes, 
+to find suitable and affordable housing. The government needs to come up with new ideas; otherwise, this problem will only grow bigger.
 
 # Part 2 - Data Sourcing
 

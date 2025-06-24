@@ -1,6 +1,7 @@
 ---
-title: "Houshold shortage"
-author: "Joris heeremans(2787294), Tom Nethe(2784796), Mohamed Hannun(2824390), Jelle Menninga(2864828), Daan Notenboom (2853496), Suleyman Yigitsoy(2861891), Soufyan Attokoki() "
+title: "Household shortage"
+author: "Joris heeremans(2787294), Tom Nethe(2784796), Mohamed Hannun(2824390), Jelle Menninga(2864828),
+Daan Notenboom (2853496), Suleyman Yigitsoy(2861891), Soufyan Attokoki() "
 date: "`r Sys.Date()`"
 output: pdf_document
 ---
@@ -15,6 +16,7 @@ install.packages("dplyr")
 install.packages("sf")
 install.packages("rnaturalearth")
 install.packages("rnaturalearthdata")
+install.packages("tinytex")
 ```
 ```{r packages, include=FALSE}
 require(tidyverse)
@@ -26,10 +28,10 @@ library(rnaturalearth)
 library(rnaturalearthdata)
 library(dplyr)
 library(ggplot2)
-
+library(tinytex)
 ```
 
-# Houshold Shortage
+# Household Shortage
 
 Joris Heeremans, Tom Nethe, Mohamed Hannun, Jelle Menninga, Daan Notenboom, Suleyman Yigitsoy, Soufyan Attokoki
 
@@ -153,10 +155,8 @@ head(migratie_bevolking)
 
 
 ```
-
-```{r gen_Var}
-
 ## 3.2 Generate necessary variables
+```{r gen_Var}
 
 # Merge datasets
 data_combined <- housing_stock_selected %>%
@@ -174,7 +174,7 @@ data_combined <- data_combined %>%
 
 ```
 
-```{r gen_ar}
+```{r gen_Var 2}
 # SUM the shortage across all provinces for each year
 nederland_shortage <- data_combined %>%
   group_by(Year) %>%
@@ -200,9 +200,10 @@ ggplot(nederland_shortage, aes(x = Year, y = Total_Tekort, group = 1)) +
   theme_minimal(base_size = 13)
 
 ``` 
-``` {r gen_var2}
-## 3.3 Visualize temporal variation
+The line plot illustrates the trend of housing shortage in the Netherlands between 2019 and 2021. The red dots and the line represent the estimated magnitude of the shortage in each year. This visual is important because it provides a clear overview of the national trend in housing scarcity over this period. A clear decrease in the housing shortage can be observed between 2019 and 2021, which is a positive development in addressing housing market issues.
 
+## 3.3 Visualize temporal variation
+``` {r gen_var 3}
 
 # Zorg dat je factor-niveau voor jaar logisch wordt geordend (voor de x-as)
 data_combined$Year <- as.factor(data_combined$Year)
@@ -226,6 +227,8 @@ ggplot(data_combined, aes(x = factor(Year), y = Tekort, fill = Regio.s)) +
 
 
 ```
+The bar chart visualizing the housing shortage per year per province in the Netherlands from 2019 to 2021. Each group of bars represents a specific year, and within each year, individual bars show the housing shortage (or surplus, if negative) for different provinces, color-coded according to the legend on the right. This visual is crucial for understanding regional disparities and temporal changes in housing supply and demand across the Netherlands. For instance, it allows for direct comparison of housing shortages in provinces like Noord-Holland and Zuid-Holland over the years, and also highlights provinces that experienced surpluses.
+
 
 ## 3.4 Visualize spatial variation
 
@@ -252,7 +255,7 @@ data_2021 <- data_combined %>%
 kaart_met_tekort <- nl_prov_alleen_prov %>%
   left_join(data_2021, by = c("name" = "provincie_kort"))
 
-# Plot de kaart met kleurverloop blauw (laag) tot rood (hoog)
+# Plot de kaart met kleurverloop wit (laag) tot rood (hoog)
 ggplot(kaart_met_tekort) +
   geom_sf(aes(fill = Tekort), color = "black", size = 0.5) +
   scale_fill_gradient(
@@ -276,11 +279,10 @@ ggplot(kaart_met_tekort) +
 
 ```
 
-Here you provide a description of why the plot above is relevant to your specific social problem.
+This map visualizes the housing shortage per province in the Netherlands in 2021. Provinces with a higher shortage are marked in darker red, while those with smaller shortages (or even surpluses, indicated by lighter shades tending towards white/light pink and potentially beyond zero if the scale allowed) are lighter. This visual is important because it highlights regional disparities in housing supply and demand. For example, urbanized provinces like Zuid-Holland and Noord-Holland (as well as Utrecht) appear to experience greater shortages, suggesting targeted policy interventions may be needed in these areas. Provinces with lighter shades might indicate a more balanced housing market or even a surplus in 2021.
+
 
 ## 3.5 Visualize sub-population variation
-
-What is the poverty rate by state?
 
 ```{r visualise_subpopulations}
 
@@ -328,13 +330,14 @@ ggplot(kaart_cbs_migratie) +
   )
 ```
 
-Here you provide a description of why the plot above is relevant to your specific social problem.
+This map displays the net migration per province in the Netherlands for the year 2021. Provinces with higher net migration percentages are depicted in darker red, while those with lower percentages are lighter. This visualization is important as it illustrates the geographical distribution of population movement within the Netherlands, highlighting areas that are experiencing significant population growth or decline due to migration. For example, the province of Groningen appears to have a notably higher net migration percentage, suggesting it attracted more residents than it lost in 2021, which could have implications for local housing demand and infrastructure.
+
 
 ## 3.6 Event analysis
 
 Analyze the relationship between two variables.
 
-```{r analysis}
+```{r analysis, message=FALSE, warning=FALSE}
 
 # Clean Regio.s before the join
 event_analysis_data <- data_combined %>%
@@ -372,7 +375,10 @@ ggplot(event_analysis_data_clean, aes(x = Netto_Migratie_Perc, y = Tekort, label
 
 
 ```
-```{r analysis} 
+This scatter plot illustrates the relationship between net migration (as a percentage of the population) and housing shortage for each province in the Netherlands in 2021. Each blue point represents a province, labeled with its name, showing its respective net migration on the x-axis and housing shortage on the y-axis. The red line represents a trend line, suggesting a positive correlation between net migration and housing shortage. This visual is important because it indicates that provinces experiencing higher net migration tend to also face greater housing shortages, implying that population influx is a significant factor contributing to housing demand and scarcity in certain regions. For instance, Groningen, with a high net migration, also shows a substantial housing shortage, while provinces like Zeeland and Fryslân, with lower net migration, appear to have a housing surplus.
+
+
+```{r analysis 2, message=FALSE, warning=FALSE} 
 # Maak dataset en sluit Groningen uit
 event_analysis_data <- data_combined %>%
   filter(Year == "2021") %>%
@@ -380,7 +386,7 @@ event_analysis_data <- data_combined %>%
     provincie_kort = gsub(" \\(PV\\)", "", Regio.s),
     provincie_kort = ifelse(provincie_kort == "Fryslân", "Friesland", provincie_kort)
   ) %>%
-  filter(provincie_kort != "Groningen") %>%  # ⛔ Groningen weghalen
+  filter(provincie_kort != "Groningen") %>%  #Groningen weghalen
   left_join(
     migratie_bevolking %>%
       filter(Year == "2021") %>%
@@ -409,11 +415,21 @@ ggplot(event_analysis_data_clean, aes(x = Netto_Migratie_Perc, y = Tekort, label
   ) +
   theme_minimal(base_size = 11)
 ``` 
-Here you provide a description of why the plot above is relevant to your specific social problem.
+This scatter plot displays the relationship between net migration (as a percentage of the population) and housing shortage for Dutch provinces in 2021, with the province of Groningen explicitly excluded. Each blue point represents a province, showing its net migration on the x-axis and housing shortage on the y-axis. The red line indicates a positive linear trend, suggesting that provinces with higher net migration percentages generally experience larger housing shortages. This visualization is important because by excluding Groningen (likely due to the presence of a large asylum seekers' center, which might skew migration data and its impact on the housing market), it provides a potentially clearer view of the underlying relationship between general migration patterns and housing shortages across the other provinces. It still shows that provinces like Utrecht, Noord-Holland, and Zuid-Holland, with relatively higher net migration, also face significant housing shortages.
+
+
 
 # Part 4 - Discussion
 
 ## 4.1 Discuss your findings
+
+Analysis of Housing Shortage and Migration in the Netherlands (2019-2021)
+
+The analysis of the graphs confirms a persistent and locally worsening housing shortage in the Netherlands between 2019 and 2021. While there's a slight national decrease, the data clearly shows that urban and western provinces, such as Noord-Holland, Zuid-Holland, and Utrecht, are the most severely affected.
+
+Migration patterns significantly exacerbate this issue. There is a clear correlation: regions experiencing higher net migration also report larger housing shortages. This indicates a demand-driven pressure on the housing market, caused by demographic growth and the attractiveness of these regions. The outlier of Groningen (possibly due to an asylum seekers' center) shows that specific migration factors can have a large local impact, but the trend remains clear even without this province.
+
+This suggests that policy measures should prioritize housing development in high-demand areas, and perhaps also strategies to distribute population growth more evenly across the country.
 
 # Part 5 - Reproducibility
 
@@ -429,5 +445,3 @@ CBS Statline. (May 28, 2025). Bevolkingsontwikkeling, https://opendata.cbs.nl/st
 CBS Statline. (May 28, 2025). Bevolkingsontwikkeling, https://opendata.cbs.nl/statline/#/CBS/nl/dataset/37230ned/table?ts=1750159602778 (Last used on June 17,2025)
 Centraal Bureau voor de Statistiek. (2025). Wonen. Centraal Bureau Voor de Statistiek. https://www.cbs.nl/nl-nl/visualisaties/monitor-brede-welvaart-en-de-sustainable-development-goals/hier-en-nu/wonen#:~:text=Door%20ABF%20Research%20is%20voor,een%20kleine%20aanvullende%20aardgaslevering%20plaatsvindt.
 Mike Langen, ABN AMRO Bank. (16 January, 2025). Housing market - building according to need. https://www.abnamro.com/research/en/our-research/housing-market-building-according-to-need
-
-Use APA referencing throughout your document.
